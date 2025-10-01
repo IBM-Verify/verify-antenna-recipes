@@ -1,0 +1,21 @@
+---
+version: 1.0.0
+
+processor:
+  # action rules that consume normalized SSF events to perform actions.
+  action_rules:
+    - event_type: "https://schemas.openid.net/secevent/caep/event-type/session-revoked"
+      type: javascript
+      content: "@js/session_revoked.js"
+    - event_type: "https://schemas.openid.net/secevent/caep/event-type/credential-change"
+      type: javascript
+      content: |
+        let event = JSON.parse(eventStr);
+        logger.info("EventStr: " + eventStr);
+        logger.info("Event JTI: " + event.claimsJson.jti);
+
+# js engine configuration
+javascript:
+  timeout: 10
+  max_concurrent_jobs: 16
+  max_ctx_pre_isolate: 50

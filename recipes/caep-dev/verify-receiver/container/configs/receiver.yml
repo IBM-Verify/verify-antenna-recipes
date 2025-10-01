@@ -1,0 +1,20 @@
+---
+version: 1.0.0
+logging:
+  level: info
+
+receiver:
+  server: # HTTP server.
+    ssl: # SSL cert / key for HTTPS
+      key: 'ks:server/key'
+      certificate: 'ks:server/cert'
+      
+  # reduce duplicate operational logs
+  squash_redundant_logs_count: 10
+  # clean events periodically
+  cleaner_interval_in_secs: 60
+  # periodically cleans processed events from the store
+  pause_cleaner: false
+  event_states_to_clean:
+    - "actioned"
+    - "errored"
