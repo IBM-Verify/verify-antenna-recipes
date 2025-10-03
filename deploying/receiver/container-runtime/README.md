@@ -21,7 +21,7 @@ The first step is to generate SSL keys and certificates for secure communication
 Here's an example of how to generate a self-signed certificate using OpenSSL:
 
 ```bash
-$ openssl req -x509 -newkey rsa:4096 -keyout keys/server.key -out keys/server.pem -days 365 -nodes
+$ openssl req -x509 -newkey rsa:4096 -keyout keys/server.key -out keys/server.pem -days 365 -nodes -addext "subjectAltName = DNS:<hostname>"
 ```
 
 This will generate a self-signed certificate with a validity of 365 days under the `keys` directory.
@@ -77,13 +77,13 @@ root/
 
    The receiver will be available on the port specified in the `.env` file (HTTPS).
 
-3. Register a stream with a SSF-compliant transmitter by using one of the [scripts](./scripts). If you are connecting to a transmitter that is authorized by the IBM Verify OIDC provider, you would need to generate an API client from the same tenant. See the next section for guidance.
+3. Register a stream with a SSF-compliant transmitter by using one of the [scripts](../scripts). If you are connecting to a transmitter that is authorized by the IBM Verify OIDC provider, you would need to generate an API client from the same tenant. See the next section for guidance.
 
 ### Using IBM Verify tenant to authorize requests to the transmitter
 
 1. Create a new API client in IBM Verify using the instructions provided in the [IBM Verify documentation](https://www.ibm.com/docs/en/security-verify?topic=access-creating-api-clients). You do not need to choose any entitlements.
     -  Note that the UI currently does not allow you to create an API client without entitlements. So, select any arbitrary entitlement. However, once you save it, edit the API client and remove the entitlement.
-2. You will use these client credentials directly or generate an access token, depending on the script you use in [scripts](./scripts).
+2. You will use these client credentials directly or generate an access token, depending on the script you use in [scripts](../scripts).
 
 ## Internals
 

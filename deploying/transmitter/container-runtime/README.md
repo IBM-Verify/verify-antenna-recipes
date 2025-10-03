@@ -37,7 +37,7 @@ The first step is to generate SSL keys and certificates for secure communication
 Here's an example of how to generate a self-signed certificate using OpenSSL:
 
 ```bash
-$ openssl req -x509 -newkey rsa:4096 -keyout configs/keys/server.key -out configs/keys/server.pem -days 365 -nodes
+$ openssl req -x509 -newkey rsa:4096 -keyout configs/keys/server.key -out configs/keys/server.pem -days 365 -nodes -addext "subjectAltName = DNS:<hostname>"
 ```
 
 This will generate a self-signed certificate with a validity of 365 days under the `keys` directory that are used to run the HTTPS server.
@@ -55,7 +55,7 @@ Transformation handlers process incoming raw events and transform them into the 
 
 You can add new files under this directory for additional transformation handlers.
 
-#### Configure authorization scheme
+### Configure authorization scheme
 
 The authorization scheme in [transmitter.yml](configs/transmitter.yml) needs to be populated with valid values. The instructions in this section is based on IBM Verify as the authorization server.
 
@@ -73,6 +73,23 @@ The authorization scheme in [transmitter.yml](configs/transmitter.yml) needs to 
 > 
 > This implies that any receiver would need to either be issued a long-lived access token or OAuth client credentials
 > (generated as an API client).
+
+### TLS certificates for transmitter connections
+
+In the event that you are connecting this receiver to a transmitter that is using a non-standard CA certificate or a self-signed certificate, you have to perform the following steps:
+
+1. Obtain the public certificate of the transmitter. You can do so by accessing the `/.well-known/ssf-metadata` endpoint of the transmitter and exporting the certificate.
+
+2. Create a `ca-bundle.pem` file under `configs/keys` directory.
+
+3. Copy the public certificate into the `ca-bundle.pem` file.
+
+4. Add the environment variable in the `docker-compose.yml` file to override the CA bundle to be used on the receiver.
+
+    ```
+    environment:
+      - SSL_CERT_FILE=/configs/keys/ca-bundle.pem
+    ```
 
 ### Set up environment variables
 

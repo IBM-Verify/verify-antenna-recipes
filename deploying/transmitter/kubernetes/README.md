@@ -41,7 +41,7 @@ The first step is to generate SSL keys and certificates for secure communication
 Here's an example of how to generate a self-signed certificate using OpenSSL:
 
 ```bash
-$ openssl req -x509 -newkey rsa:4096 -keyout configs/keys/server.key -out configs/keys/server.pem -days 365 -nodes
+$ openssl req -x509 -newkey rsa:4096 -keyout configs/keys/server.key -out configs/keys/server.pem -days 365 -nodes -addext "subjectAltName = DNS:<hostname>"
 ```
 
 This will generate a self-signed certificate with a validity of 365 days under the `keys` directory that are used to run the HTTPS server.
