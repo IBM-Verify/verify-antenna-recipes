@@ -22,7 +22,7 @@ The IBM Verify Antenna Receiver is designed to receive and process security even
 
 You will build a directory structure that matches [configs](configs).
 
-Create a directory in your system called `antenna-transmitter` and copy the contents of the [configs](configs) directory into it. All commands from this point onwards will be executed from the `antenna-transmitter` directory.
+Create a directory in your system called `antenna-receiver` and copy the contents of the [configs](configs) directory into it. All commands from this point onwards will be executed from the `antenna-receiver` directory.
 
 ### Generate keys and certificates
 
