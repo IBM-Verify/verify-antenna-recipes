@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: antenna-transmitter
+  labels:
+    app: antenna-transmitter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: antenna-transmitter
+  template:
+    metadata:
+      labels:
+        app: antenna-transmitter
+    spec:
+      hostname: antenna-transmitter
+      containers:
+      - name: transmitter
+        image: icr.io/ibm-verify/ibm-verify-antenna:25.05.0
+        ports:
+        - containerPort: 9042
+        - containerPort: 9044
+        volumeMounts:
+        #- name: config-volume
+        #  mountPath: /configs
+        #- name: js-volume
+        #  mountPath: /js
+        #- name: keys-volume
+        #  mountPath: /keys
+        - name: db-volume
+          mountPath: /db
+        - name: all-configs
+          mountPath: /configs
+      volumes:
+      - name: all-configs
+        projected:
+          sources:
+            - configMap:
+                name: transmitter-config
+            - configMap:
+                name: transmitter-transform-handlers
+                items:
+                  - key: mdm_mapper.js
+                    path: js/mdm_mapper.js
+                  - key: ssf_mapper.js
+                    path: js/ssf_mapper.js
+            - secret:
+                name: transmitter-keys
+                items:
+                  - key: jwtsigner.key
+                    path: keys/jwtsigner.key
+                  - key: jwtsigner.pem
+                    path: keys/jwtsigner.pem
+                  - key: server.key
+                    path: keys/server.key
+                  - key: server.pem
+                    path: keys/server.pem
+      - name: db-volume
+        persistentVolumeClaim:
+          claimName: transmitter-db-pvc
+

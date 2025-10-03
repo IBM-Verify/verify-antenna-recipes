@@ -1,8 +1,6 @@
-# IBM Verify Antenna Transmitter on a Container Runtime
+# IBM Verify Antenna Transmitter on Kubernetes
 
-IBM Verify Antenna is available as a container image on the [IBM Verify Registry](icr.io/ibm-verify/ibm-verify-antenna:25.05.0).
-
-This document guides you through running an IBM Verify Antenna Transmitter on a container runtime, which processes raw events pushed from a source and transforms it into events complying with the OpenID Shared Signals Framework (SSF).
+This document guides you through running an IBM Verify Antenna Transmitter on a Kubernetes cluster.
 
 ## Background
 
@@ -15,7 +13,7 @@ The IBM Verify Antenna Transmitter is designed to ingest raw security events, tr
 
 ## Prerequisites
 
-- A container runtime like Docker or Podman installed
+- A Kubernetes cluster
 - An IBM Verify tenant: You can sign up for a free trial at [ibm.biz/verify-trial](https://ibm.biz/verify-trial). This will be referenced in this document and in configuration files as `tenant.verify.ibm.com`.
 
 ## Configuration
@@ -26,9 +24,15 @@ The IBM Verify Antenna Transmitter is designed to ingest raw security events, tr
 > 
 > You will need to perform these steps only if you choose not to clone this Github repository to your local system.
 
-You will build a directory structure that matches [configs](configs).
+You will build a directory structure that matches [configs](../container-runtime/configs).
 
-Create a directory in your system called `antenna-transmitter` and copy the contents of the [configs](configs) directory into it. All commands from this point onwards will be executed from the `antenna-transmitter` directory.
+Create a directory in your system called `antenna-transmitter` and copy the contents of the [configs](../container-runtime/configs) directory into it. All commands from this point onwards will be executed from the `antenna-transmitter` directory.
+
+Copy the following files into `antenna-transmitter` directory:
+
+- `transmitter-deployment.yaml`: This is the Kubernetes deployment manifest.
+- `transmitter-service.yaml`: This is the Kubernetes service manifest.
+- `transmitter-pvc.yaml`: This is the persistent volume definition for the SQLite database.
 
 ### Generate keys and certificates
 
@@ -74,47 +78,60 @@ The authorization scheme in [transmitter.yml](configs/transmitter.yml) needs to 
 > This implies that any receiver would need to either be issued a long-lived access token or OAuth client credentials
 > (generated as an API client).
 
-### Set up environment variables
+### Create configmaps and secrets
 
-1. Copy [dotenv](./dotenv) to `.env` file.
-2. Modify the properties as needed.
-3. Ensure that the `HOSTNAME` value is synchronized in the `transmitter.yml`.
+Using the files in `configs` directory, you will now create configmaps and secrets. The names are very important because they are referenced in the Kubernetes deployment descriptor.
 
-### Final Directory Structure
+1. Create the configmap for the YAML configuration files
 
-```
-antenna-transmitter/
-├── configs/
-│   ├── js/
-│   │   ├── log_event.js
-│   ├── keys/
-│   │   ├── jwtsigner.key
-│   │   ├── jwtsigner.pem
-│   │   ├── server.key
-│   │   └── server.pem
-│   ├── processor.yml
-│   ├── transmitter.yml
-│   └── storage.yml
-├── db/
-│   └── ssf.db
-|── .env
-└── docker-compose.yml
-```
+    ```bash
+    $ kubectl create configmap transmitter-config --from-file=./configs/transmitter.yml --from-file=./configs/storage.yml --from-file=./configs/processor.yml
+    ```
 
-## Running the transmitter
+2. Create the configmap for the transformation handlers
 
-1. Create the `db` directory, if it doesn't exist.
+    ```bash
+    $ kubectl create configmap transmitter-action-handlers --from-file=configs/js
+    ```
 
-2. Start the transmitter with Docker Compose or equivalent:
+3. Create the secret for the TLS certificates
 
-   ```bash
-   $ docker-compose up -d
-   ```
+    ```bash
+    $ kubectl create secret generic transmitter-keys --from-file=configs/keys
+    ```
 
-3. Open a browser and verify that you are able to connect to https://{HOSTNAME}:9044/.well-known/ssf-configuration
+### Create the Kubernetes deployment
 
-## Troubleshooting
+1. Create the PVC
 
-- Check logs with `docker-compose logs`
-- Verify SSL certificate configuration
-- Verify network connectivity
+    ```bash
+    $ kubectl apply -f transmitter-pvc.yaml
+    ```
+
+2. Create the Kubernetes deployment
+
+    ```bash
+    $ kubectl apply -f transmitter-deployment.yaml
+    ```
+
+3. Create the Kubernetes service
+
+    ```bash
+    $ kubectl apply -f transmitter-service.yaml
+    ```
+
+### Verify that the transmitter is running
+
+1. Check if the pod is running
+
+    ```bash
+    $ kubectl get pods -l app=antenna-transmitter
+    ```
+
+2. Port-forward the service to access the transmitter
+
+    ```bash
+    $ kubectl port-forward service/antenna-transmitter 9042:9042 9044:9044
+    ```
+
+3. Open a browser and verify that you are able to connect to https://{HOSTNAME}:9044/.well-known/ssf-configuration. `{HOSTNAME}` is the hostname of the machine where the transmitter is running.
