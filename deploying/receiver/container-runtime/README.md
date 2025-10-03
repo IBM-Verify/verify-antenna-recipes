@@ -14,6 +14,16 @@ The IBM Verify Antenna Receiver is designed to receive and process security even
 
 ## Configuration
 
+### Setting up the local directory
+
+> 📘 Note
+> 
+> You will need to perform these steps only if you choose not to clone this Github repository to your local system.
+
+You will build a directory structure that matches [configs](configs).
+
+Create a directory in your system called `antenna-transmitter` and copy the contents of the [configs](configs) directory into it. All commands from this point onwards will be executed from the `antenna-transmitter` directory.
+
 ### Generate keys and certificates
 
 The first step is to generate SSL keys and certificates for secure communication. You can use OpenSSL to generate the keys and certificates.
@@ -32,13 +42,22 @@ Action handlers are responsible for processing different event types and perform
 
 You can add new files under this directory for additional action handlers.
 
-### Add configuration files
+### TLS certificates for transmitter connections
 
-After creating the action handlers, you need to add the configuration files for the receiver. The receiver is configured through several YAML files in the `configs` directory. While all of the configuration can be in a single YAML file, this document uses multiple files for clarity.
+In the event that you are connecting this receiver to a transmitter that is using a non-standard CA certificate or a self-signed certificate, you have to perform the following steps:
 
-- **processor.yml**: Configures event processing rules and action handlers.
-- **receiver.yml**: Configures the HTTP server, SSL, and event cleaning.
-- **storage.yml**: Configures the database storage and keystores.
+1. Obtain the public certificate of the transmitter. You can do so by accessing the `/.well-known/ssf-metadata` endpoint of the transmitter and exporting the certificate.
+
+2. Create a `ca-bundle.pem` file under `configs/keys` directory.
+
+3. Copy the public certificate into the `ca-bundle.pem` file.
+
+4. Add the environment variable in the `docker-compose.yml` file to override the CA bundle to be used on the receiver.
+
+    ```
+    environment:
+      - SSL_CERT_FILE=/configs/keys/ca-bundle.pem
+    ```
 
 ### Set up environment variables
 

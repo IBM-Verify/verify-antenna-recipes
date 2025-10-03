@@ -14,8 +14,8 @@ event=$(cat <<EOF
         "deviceType": "Desktop",
         "deviceManufacturer": "QEMU",
         "deviceModel": "Standard PC (i440FX + PIIX, 1996)",
-        "deviceOS": "Windows"
-        "deviceOSVersion": "10.0.19042",
+        "deviceOS": "Windows",
+        "deviceOSVersion": "10.0.19042"
     },
     "user": {
         "userName": "ppan",
@@ -29,6 +29,6 @@ echo $event
 
 # Modify the hostname if you aren't using the default transmitter hostname
 curl -k --request POST \
-    --url https://${TRANSMITTER_HOSTNAME}:9042/sources/mdm/events \
+    --url https://$TRANSMITTER_HOSTNAME:9042/sources/mdm/events \
     --header 'Content-Type: application/json' \
     --data "$event"

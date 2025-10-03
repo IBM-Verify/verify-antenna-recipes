@@ -37,7 +37,13 @@ The first step is to generate SSL keys and certificates for secure communication
 Here's an example of how to generate a self-signed certificate using OpenSSL:
 
 ```bash
-$ openssl req -x509 -newkey rsa:4096 -keyout configs/keys/server.key -out configs/keys/server.pem -days 365 -nodes -addext "subjectAltName = DNS:<hostname>"
+$ openssl req -x509 \
+        -newkey rsa:4096 \
+        -keyout configs/keys/server.key \
+        -out configs/keys/server.pem \
+        -days 365 \
+        -nodes \
+        -addext "subjectAltName = DNS:<hostname>"
 ```
 
 This will generate a self-signed certificate with a validity of 365 days under the `keys` directory that are used to run the HTTPS server.
@@ -46,7 +52,12 @@ You will also need a key-pair to sign the security event tokens. You can use Ope
 Here's an example of how to generate a key-pair using OpenSSL:
 
 ```bash
-$ openssl req -x509 -newkey rsa:4096 -keyout configs/keys/jwtsigner.key -out configs/keys/jwtsigner.pem -days 365 -nodes
+$ openssl req -x509 \
+        -newkey rsa:4096 \
+        -keyout configs/keys/jwtsigner.key \
+        -out configs/keys/jwtsigner.pem \
+        -days 365 \
+        -nodes
 ```
 
 ### Create transformation handlers
@@ -61,7 +72,7 @@ The authorization scheme in [transmitter.yml](configs/transmitter.yml) needs to 
 
 1.  Create a new API client in IBM Verify using the instructions provided in the [IBM Verify documentation](https://www.ibm.com/docs/en/security-verify?topic=access-creating-api-clients). You do not need to choose any entitlements.
     -  Note that the UI currently does not allow you to create an API client without entitlements. So, select any arbitrary entitlement. However, once you save it, edit the API client and remove the entitlement.
-2.  Populate the `transmitter.yml` with the following values:
+2.  Populate the `configs/transmitter.yml` with the following values:
     -  `authorization_schemes[].client_id`: The client ID of the API client created in step 1.
     -  `authorization_schemes[].client_secret`: The client ID of the API client created in step 1.
     -  `authorization_schemes[].discovery_uri`: Replace the hostname in the URL with the hostname of your IBM Verify tenant.
@@ -74,28 +85,17 @@ The authorization scheme in [transmitter.yml](configs/transmitter.yml) needs to 
 > This implies that any receiver would need to either be issued a long-lived access token or OAuth client credentials
 > (generated as an API client).
 
-### TLS certificates for transmitter connections
-
-In the event that you are connecting this receiver to a transmitter that is using a non-standard CA certificate or a self-signed certificate, you have to perform the following steps:
-
-1. Obtain the public certificate of the transmitter. You can do so by accessing the `/.well-known/ssf-metadata` endpoint of the transmitter and exporting the certificate.
-
-2. Create a `ca-bundle.pem` file under `configs/keys` directory.
-
-3. Copy the public certificate into the `ca-bundle.pem` file.
-
-4. Add the environment variable in the `docker-compose.yml` file to override the CA bundle to be used on the receiver.
-
-    ```
-    environment:
-      - SSL_CERT_FILE=/configs/keys/ca-bundle.pem
-    ```
-
-### Set up environment variables
+### Set up the rest
 
 1. Copy [dotenv](./dotenv) to `.env` file.
 2. Modify the properties as needed.
-3. Ensure that the `HOSTNAME` value is synchronized in the `transmitter.yml`.
+3. Ensure that the `HOSTNAME` value is synchronized in the `configs/transmitter.yml`.
+4. Copy the [docker-compose.yml](docker-compose.yml) to the `antenna-transmitter` directory.
+5. Create an empty directory for the database
+
+    ```bash
+    $ mkdir -p db
+    ```
 
 ### Final Directory Structure
 
@@ -103,7 +103,8 @@ In the event that you are connecting this receiver to a transmitter that is usin
 antenna-transmitter/
 ├── configs/
 │   ├── js/
-│   │   ├── log_event.js
+│   │   ├── mdm_mapper.js
+│   │   ├── ssf_mapper.js
 │   ├── keys/
 │   │   ├── jwtsigner.key
 │   │   ├── jwtsigner.pem
@@ -129,6 +130,20 @@ antenna-transmitter/
    ```
 
 3. Open a browser and verify that you are able to connect to https://{HOSTNAME}:9044/.well-known/ssf-configuration
+
+4. Create a `scripts` directory and copy [test_device_event.sh](../scripts/test_device_event.sh) to it.
+
+5. Verify that the transmitter is able to accept events by running the script.
+
+    ```bash
+    $ ./scripts/test_device_event.sh
+    ```
+
+    Verify that you see the log indicating the event is received on the transmitter. It will appear as below.
+
+    ```bash
+    transmitter.dune.com  | time="2025-10-03T10:41:39Z" level=info msg="[trace] Raw event received: {\"deviceInfo\":
+    ```
 
 ## Troubleshooting
 
