@@ -22,12 +22,6 @@ spec:
         - containerPort: 9042
         - containerPort: 9044
         volumeMounts:
-        #- name: config-volume
-        #  mountPath: /configs
-        #- name: js-volume
-        #  mountPath: /js
-        #- name: keys-volume
-        #  mountPath: /keys
         - name: db-volume
           mountPath: /db
         - name: all-configs

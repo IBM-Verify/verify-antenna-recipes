@@ -85,19 +85,24 @@ Using the files in `configs` directory, you will now create configmaps and secre
 1. Create the configmap for the YAML configuration files
 
     ```bash
-    $ kubectl create configmap transmitter-config --from-file=./configs/transmitter.yml --from-file=./configs/storage.yml --from-file=./configs/processor.yml
+    $ kubectl create configmap transmitter-config \
+            --from-file=./configs/transmitter.yml \
+            --from-file=./configs/storage.yml \
+            --from-file=./configs/processor.yml
     ```
 
 2. Create the configmap for the transformation handlers
 
     ```bash
-    $ kubectl create configmap transmitter-action-handlers --from-file=configs/js
+    $ kubectl create configmap transmitter-transform-handlers \
+            --from-file=configs/js
     ```
 
 3. Create the secret for the TLS certificates
 
     ```bash
-    $ kubectl create secret generic transmitter-keys --from-file=configs/keys
+    $ kubectl create secret generic transmitter-keys \
+            --from-file=configs/keys
     ```
 
 ### Create the Kubernetes deployment
