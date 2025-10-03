@@ -108,7 +108,7 @@ function transformEvent(rawEvent) {
                 {
                     en: "The MDM provider indicated this change of state"
                 },
-                rawEvent.eventTime
+                new Date(rawEvent.eventTime).getTime()
             )
         ]
     );

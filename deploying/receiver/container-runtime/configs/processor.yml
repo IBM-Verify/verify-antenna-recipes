@@ -7,7 +7,7 @@ processor:
     - event_type: "https://schemas.openid.net/secevent/caep/event-type/session-revoked"
       type: javascript
       content: "@js/log_event.js"
-    - event_type: "https://schemas.openid.net/secevent/caep/event-type/credential-change"
+    - event_type: "https://schemas.openid.net/secevent/caep/event-type/device-compliance-change"
       type: javascript
       content: "@js/log_event.js"
 

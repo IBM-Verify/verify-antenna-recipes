@@ -22,7 +22,9 @@ The IBM Verify Antenna Receiver is designed to receive and process security even
 
 You will build a directory structure that matches [configs](configs).
 
-Create a directory in your system called `antenna-receiver` and copy the contents of the [configs](configs) directory into it. All commands from this point onwards will be executed from the `antenna-receiver` directory.
+1. Create a directory in your system called `antenna-receiver` and copy the contents of the [configs](configs) directory into it. All commands from this point onwards will be executed from the `antenna-receiver` directory.
+
+2. Copy the `docker-compose.yml` file to `antenna-receiver` directory.
 
 ### Generate keys and certificates
 
@@ -31,7 +33,13 @@ The first step is to generate SSL keys and certificates for secure communication
 Here's an example of how to generate a self-signed certificate using OpenSSL:
 
 ```bash
-$ openssl req -x509 -newkey rsa:4096 -keyout keys/server.key -out keys/server.pem -days 365 -nodes -addext "subjectAltName = DNS:<hostname>"
+$ openssl req -x509 \
+        -newkey rsa:4096 \
+        -keyout configs/keys/server.key \
+        -out configs/keys/server.pem \
+        -days 365 \
+        -nodes \
+        -addext "subjectAltName = DNS:<hostname>"
 ```
 
 This will generate a self-signed certificate with a validity of 365 days under the `keys` directory.
@@ -52,17 +60,22 @@ In the event that you are connecting this receiver to a transmitter that is usin
 
 3. Copy the public certificate into the `ca-bundle.pem` file.
 
-4. Add the environment variable in the `docker-compose.yml` file to override the CA bundle to be used on the receiver.
+4. Add the environment variable in the `docker-compose.yml` file to override the CA bundle to be used on the receiver. This is under the service at the same level as `env_file`.
 
     ```
     environment:
       - SSL_CERT_FILE=/configs/keys/ca-bundle.pem
     ```
 
-### Set up environment variables
+### Set up the rest
 
 1. Copy [dotenv](./dotenv) to `.env` file.
 2. Modify the properties as needed.
+3. Create an empty directory for the database
+
+    ```bash
+    $ mkdir -p db
+    ```
 
 ### Final Directory Structure
 
@@ -85,10 +98,7 @@ root/
 
 ## Getting Started
 
-1. Create the `db` directory, if it doesn't exist.
-
-
-2. Start the receiver with Docker Compose or equivalent:
+1. Start the receiver with Docker Compose or equivalent:
 
    ```bash
    $ docker-compose up -d
@@ -96,7 +106,7 @@ root/
 
    The receiver will be available on the port specified in the `.env` file (HTTPS).
 
-3. Register a stream with a SSF-compliant transmitter by using one of the [scripts](../scripts). If you are connecting to a transmitter that is authorized by the IBM Verify OIDC provider, you would need to generate an API client from the same tenant. See the next section for guidance.
+2. Register a stream with a SSF-compliant transmitter by using one of the [scripts](../scripts). If you are connecting to a transmitter that is authorized by the IBM Verify OIDC provider, you would need to generate an API client from the same tenant. See the next section for guidance.
 
 ### Using IBM Verify tenant to authorize requests to the transmitter
 
