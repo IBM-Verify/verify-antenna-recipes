@@ -1,0 +1,10 @@
+services:
+  antenna-receiver:
+    image: "icr.io/ibm-verify/ibm-verify-antenna:25.05.0"
+    hostname: ${HOSTNAME}
+    container_name: ${HOSTNAME}
+    ports:
+      - ${PORT}:9043
+    volumes:
+      - ./configs:/configs
+      - ./db:/db

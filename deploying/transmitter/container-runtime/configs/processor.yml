@@ -1,0 +1,16 @@
+---
+version: 1.0.0
+
+processor:
+  transform_rules:
+    - source_id: mdm
+      type: javascript
+      content: "@js/mdm_mapper.js"
+    - source_id: ssf_compliant
+      type: javascript
+      content: "@js/ssf_mapper.js"
+
+javascript:
+  timeout: 10
+  max_concurrent_jobs: 16
+  max_ctx_pre_isolate: 50
