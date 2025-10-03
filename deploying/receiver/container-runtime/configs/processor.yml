@@ -1,0 +1,18 @@
+---
+version: 1.0.0
+
+processor:
+  # action rules that consume normalized SSF events to perform actions.
+  action_rules:
+    - event_type: "https://schemas.openid.net/secevent/caep/event-type/session-revoked"
+      type: javascript
+      content: "@js/log_event.js"
+    - event_type: "https://schemas.openid.net/secevent/caep/event-type/device-compliance-change"
+      type: javascript
+      content: "@js/log_event.js"
+
+# js engine configuration
+javascript:
+  timeout: 10
+  max_concurrent_jobs: 16
+  max_ctx_pre_isolate: 50

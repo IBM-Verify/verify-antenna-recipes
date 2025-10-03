@@ -1,0 +1,41 @@
+---
+version: 1.0.0
+
+logging:
+  level: info
+
+transmitter:
+  server:
+    ssl:
+      key: 'ks:server/key'
+      certificate: 'ks:server/cert'
+  jwks:
+    signing_keystore: jwks_keys
+  base_url: "https://transmitter.dune.com:9044"
+  issuer: "https://transmitter.dune.com"
+  event_types:
+    - "https://schemas.openid.net/secevent/ssf/event-type/verification"
+    - "https://schemas.openid.net/secevent/caep/event-type/session-revoked"
+    - "https://schemas.openid.net/secevent/caep/event-type/device-compliance-change"
+  sign_poll_set: true
+  push_interval: 10s
+  minimum_push_checking_interval: 10s
+
+ingester:
+  server:
+    ssl:
+      key: 'ks:server/key'
+      certificate: 'ks:server/cert'
+  base_url: "https://transmitter.dune.com:9042"
+  sources:
+    - id: mdm
+      type: http_push
+    - id: ssf_compliant
+      type: http_push
+
+authorization_schemes:
+  - spec_urn: "urn:ietf:rfc:6749"
+    client_id: "NOT_A_VALID_VALUE"
+    client_secret: "NOT_A_VALID_VALUE"
+    client_authentication_method: "client_secret_post"
+    discovery_uri: "https://tenant.verify.ibm.com/oauth2/.well-known/openid-configuration"

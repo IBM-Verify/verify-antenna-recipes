@@ -1,0 +1,26 @@
+version: 1.0.0
+
+server_connections: 
+  - name: antennadb
+    type: sqlite
+    database_name: ssf
+    hosts:
+      - hostname: "file:/db/ssf.db?cache=shared"
+        host_port: 0
+
+databases:
+  config:
+    server: antennadb
+  ssf_2_action:
+    server: antennadb
+    partitions: 10
+
+keystores:
+  - name: server
+    type: pem
+    certificate:
+      - label: cert
+        content: "@keys/server.pem"
+    key:
+      - label: key
+        content: "@keys/server.key"
